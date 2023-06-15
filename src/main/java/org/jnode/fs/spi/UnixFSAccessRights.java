@@ -26,8 +26,6 @@ import java.security.acl.Group;
 import org.jnode.fs.FSAccessRights;
 import org.jnode.fs.FileSystem;
 
-import com.sun.security.auth.UserPrincipal;
-
 /**
  * 
  * @author Fabien DUMINY (fduminy at jnode.org)

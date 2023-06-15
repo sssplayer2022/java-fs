@@ -21,6 +21,8 @@
 package org.jnode.fs.exfat;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * TODO: Add support for compressed format:
@@ -81,6 +83,8 @@ public final class UpcaseTable {
 
     private final DeviceAccess da;
 
+    ByteBuffer buffer;
+
     private UpcaseTable(ExFatSuperBlock sb, long offset, long size) {
         this.sb = sb;
         this.da = sb.getDeviceAccess();
@@ -122,8 +126,31 @@ public final class UpcaseTable {
         if (c > this.chars) {
             return c;
         } else {
-            return da.getChar(offset + (c * 2));
+            if (buffer == null) {
+                cacheTable();
+            }
+
+            return getChar(c);
+            // return da.getChar(offset + (c * 2));
         }
+    }
+
+    public void cacheTable() {
+        if (buffer == null) {
+             buffer = ByteBuffer.allocate(65536 * 2 + 512);
+             buffer.order(ByteOrder.LITTLE_ENDIAN);
+             try {
+                da.read(buffer, offset);
+                buffer.rewind();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+         
+    }
+
+    private char getChar(char c) {
+        return (char)buffer.getShort(c * 2);        
     }
 
     public String toUpperCase(String s) throws IOException {
