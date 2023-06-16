@@ -49,15 +49,26 @@ public class HfsPlusFileSystemType implements BlockDeviceFileSystemType<HfsPlusF
          * pte).getSystemIndicator() != IBMPartitionTypes.PARTTYPE_LINUXNATIVE) { return false; } } }
          */
         // need to check the magic
-        ByteBuffer magic = ByteBuffer.allocate(4);
-        try {
-            devApi.read(1024, magic);
-        } catch (IOException e) {
+        // ByteBuffer magic = ByteBuffer.allocate(4);
+        // try {
+            // devApi.read(1024, magic);
+        // } catch (IOException e) {
+            // return false;
+        // }
+
+
+        if (firstSector.length < 0x400) {
+            // Not enough data for detection
             return false;
         }
+        byte[] data = new byte[4];
+        System.arraycopy(firstSector, 0x400, data, 0, data.length);
 
-        int magicNumber = BigEndian.getInt16(magic.array(), 0);
-        int version = BigEndian.getInt16(magic.array(), 2);
+        int magicNumber = BigEndian.getInt16(data, 0);
+        int version = BigEndian.getInt16(data, 2);
+
+        // int magicNumber = BigEndian.getInt16(magic.array(), 0);
+        // int version = BigEndian.getInt16(magic.array(), 2);
 
         return (magicNumber == SuperBlock.HFSPLUS_SUPER_MAGIC && version == 4)
             || (magicNumber == SuperBlock.HFSX_SUPER_MAGIC && version == 5);

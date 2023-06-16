@@ -78,7 +78,7 @@
 
     <groupId>me.jahnen</groupId>
     <artifactId>java-fs</artifactId>
-    <version>0.1.4.3</version>
+    <version>0.1.4.4</version>
 
     <dependencies>
         <dependency>

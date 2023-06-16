@@ -40,6 +40,8 @@ public abstract class Fat {
     private int lastfree;
 
     private final ByteBuffer clearbuf;
+    private final ByteBuffer cacheBuffer;
+    private int cachedCluster = -1;
 
     protected Fat(BootSector bs, BlockDeviceAPI api) {
         this.bs = bs;
@@ -65,6 +67,8 @@ public abstract class Fat {
          * setup the clear buffer
          */
         clearbuf = ByteBuffer.wrap(cleardata).asReadOnlyBuffer();
+
+        cacheBuffer = ByteBuffer.allocate(getClusterSize());
     }
 
     public static Fat create(BlockDeviceAPI api) throws IOException, FileSystemException {
@@ -140,7 +144,15 @@ public abstract class Fat {
                 "exceed clusterSize[" + getClusterSize() + "]");
         }
 
-        getApi().read(getClusterPosition(cluster) + offset, dst);
+        if (cachedCluster != cluster) {
+            cachedCluster = -1;
+            cacheBuffer.clear();
+            getApi().read(getClusterPosition(cluster), cacheBuffer);
+            cachedCluster = cluster;
+        }
+
+        dst.put(cacheBuffer.array(), offset, dst.remaining());           
+        // getApi().read(getClusterPosition(cluster) + offset, dst);
     }
 
     public void writeCluster(int cluster, int offset, ByteBuffer src) throws IOException {
