@@ -114,8 +114,24 @@ public final class UpcaseTable {
     public long checkSum() throws IOException {
         long sum = 0;
 
+        int buffSize = 512 * 2 * 32;//32k
+        // int buffSize = 512;
+        ByteBuffer buff = ByteBuffer.allocate(buffSize);
+        buff.order(ByteOrder.LITTLE_ENDIAN);
+
         for (int i = 0; i < size; i++) {
-            sum = ((sum << 31) | (sum >> 1)) + da.getUint8(offset + i);
+            // sum = ((sum << 31) | (sum >> 1)) + da.getUint8(offset + i);
+            int count = i / buffSize;
+            if (i % buffSize == 0) {
+                buff.clear();
+                da.read(buff, offset + count * buffSize);
+                buff.rewind();
+            }
+
+            
+            int rem = i % buffSize;
+
+            sum = ((sum << 31) | (sum >> 1)) + (buff.get(rem) & 0xff);
             sum &= 0xffffffffl;
         }
 
