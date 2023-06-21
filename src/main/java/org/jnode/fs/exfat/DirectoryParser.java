@@ -282,11 +282,11 @@ public class DirectoryParser {
 
         final String name = nameBuilder.toString();
 
-        if ((this.upcase != null) && (hashName(name) != nameHash)) {
-            throw new IOException("name hash mismatch ("
-                + Integer.toHexString(hashName(name)) +
-                " != " + Integer.toHexString(nameHash) + ")");
-        }
+        // if ((this.upcase != null) && (hashName(name) != nameHash)) {
+        //     throw new IOException("name hash mismatch ("
+        //         + Integer.toHexString(hashName(name)) +
+        //         " != " + Integer.toHexString(nameHash) + ")");
+        // }
 
         v.foundNode(Node.create(sb, startCluster, attrib, name, (flag == FLAG_CONTIGUOUS), realSize, times, deleted),
             index);
